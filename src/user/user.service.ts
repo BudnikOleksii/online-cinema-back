@@ -5,7 +5,6 @@ import { ModelType } from '@typegoose/typegoose/lib/types';
 import { UserModel } from './user.model';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { genSalt, hash } from 'bcryptjs';
-import { use } from 'passport';
 
 @Injectable()
 export class UserService {
