@@ -5,10 +5,13 @@ import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { genSalt, hash } from 'bcryptjs';
 import { GenreModel } from './genre.model';
 import { CreateGenreDto } from './dto/create.genre.dto';
+import { MovieService } from '../movie/movie.service';
+import { ICollection } from './genre.interface';
 
 @Injectable()
 export class GenreService {
-  constructor(@InjectModel(GenreModel) private readonly GenreModel: ModelType<GenreModel>) {}
+  constructor(@InjectModel(GenreModel) private readonly GenreModel: ModelType<GenreModel>,
+              private readonly MovieService: MovieService) {}
 
   async bySlug(slug: string) {
     const genre = await this.GenreModel.findOne({ slug });
@@ -44,7 +47,18 @@ export class GenreService {
 
   async getCollections() {
     const genres = await this.getAll();
-    const collections = genres;
+    const collections = await Promise.all(genres.map( async (genre)=> {
+      const moviesByGenre = await this.MovieService.byGenres([genre._id]);
+
+      const result: ICollection = {
+        _id: String(genre._id),
+        slug: genre.slug,
+        title: genre.name,
+        image: moviesByGenre.length > 0 ? moviesByGenre[0].bigPoster : null, // TODO if no movies return placeholder
+      };
+
+      return result;
+    }));
 
     return collections;
   }
