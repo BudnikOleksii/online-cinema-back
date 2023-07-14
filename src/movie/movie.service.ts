@@ -75,6 +75,10 @@ export class MovieService {
       .populate('genres');
   }
 
+  async updateRating(id: Types.ObjectId, newRating: number) {
+    return this.MovieModel.findByIdAndUpdate(id, { rating: newRating }, { new: true });
+  }
+
   // FOR ADMINS
   async byId(_id: string) {
     const movie = await this.MovieModel.findById(_id);
